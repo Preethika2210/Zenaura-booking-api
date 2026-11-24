@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZenAura Dental – Staff console</title>
+<style>
+  :root {
+    --ink:#1b2830; --muted:#5b6a74; --faint:#8a979f; --line:#e1e6e9; --bg:#f4f6f7; --card:#fff;
+    --teal:#0f5c63; --teal-2:#0b4a50; --teal-soft:#e6f1f2;
+    --amber:#9a5800; --amber-bg:#fff3df; --green:#1b6b3a; --green-bg:#e5f4ea;
+    --red:#a12b2b; --red-bg:#fbeaea; --grey-bg:#eef1f3; --blue:#1f4f8a; --blue-bg:#e8f0fb;
+    --plat:#3d3a8f; --plat-bg:#ecebfb; --gold:#8a6300; --gold-bg:#fbf1d6; --silver:#4b5963; --silver-bg:#e9edf0;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+  header.top { background:var(--teal); color:#fff; }
+  .top-in { max-width:1280px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .logo { width:30px; height:30px; border-radius:50%; background:#fff; color:var(--teal); display:grid; place-items:center; font-weight:700; }
+  .top h1 { margin:0; font-size:17px; font-weight:600; }
+  .top .meta { font-size:12px; opacity:.85; }
+  .spacer { flex:1; }
+  .top select { width:auto; max-width:220px; background:var(--teal-2); color:#fff; border:1px solid rgba(255,255,255,.35); border-radius:6px; padding:6px 8px; font:inherit; }
+  .top button { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.45); }
+  nav.tabs { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5; }
+  .tabs-in { max-width:1280px; margin:0 auto; padding:0 12px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+  .tabs-in button { border:0; border-bottom:2px solid transparent; border-radius:0; background:none; padding:13px 12px; color:var(--muted); font-weight:600; white-space:nowrap; }
+  .tabs-in button.on { color:var(--teal); border-bottom-color:var(--teal); }
+  .tabs-in .count { display:inline-block; min-width:18px; margin-left:4px; padding:0 5px; border-radius:9px; background:var(--amber-bg); color:var(--amber); font-size:11px; text-align:center; }
+  main { max-width:1280px; margin:0 auto; padding:20px; }
+  section.tab { display:none; } section.tab.on { display:block; }
+  h2 { font-size:18px; margin:0; }
+  .head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .head p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+  button { font:inherit; border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:6px; padding:6px 11px; cursor:pointer; }
+  button:hover { border-color:#b5bec4; }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--teal); border-color:var(--teal); color:#fff; }
+  button.primary:hover { background:var(--teal-2); }
+  button.ok { border-color:#a3d3b3; color:var(--green); }
+  button.no { border-color:#e8b8b8; color:var(--red); }
+  button.sm { padding:3px 8px; font-size:12.5px; }
+  input, select, textarea { font:inherit; color:var(--ink); border:1px solid #cfd6db; border-radius:6px; padding:7px 9px; background:#fff; width:100%; }
+  textarea { min-height:60px; resize:vertical; }
+  input:focus, select:focus, textarea:focus { outline:2px solid #9cc7cb; outline-offset:0; border-color:var(--teal); }
+  label.f { display:block; font-size:12.5px; color:var(--muted); font-weight:600; margin-bottom:10px; }
+  label.f > input, label.f > select, label.f > textarea { margin-top:4px; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; }
+  .pad { padding:16px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:16px; }
+  .stat { padding:14px 16px; }
+  .stat .n { font-size:26px; font-weight:700; line-height:1.1; }
+  .stat .l { color:var(--muted); font-size:12.5px; margin-top:4px; }
+  .grid2 { display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+  .card h3 { font-size:14px; margin:0; padding:12px 16px; border-bottom:1px solid var(--line); }
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { padding:10px 16px; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .list li:last-child { border-bottom:0; }
+  .list .grow { flex:1; min-width:180px; }
+  .tablewrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; color:var(--muted); font-weight:600; background:#fafbfb; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  tr.fresh td { animation:flash 2.5s ease-out; }
+  @keyframes flash { from { background:#fff6cc; } to { background:transparent; } }
+  .ref { font-weight:600; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; }
+  .sub { color:var(--muted); font-size:12px; }
+  .pill { display:inline-block; border-radius:999px; padding:2px 9px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .requested, .waiting { background:var(--amber-bg); color:var(--amber); }
+  .confirmed, .booked { background:var(--green-bg); color:var(--green); }
+  .rejected, .cancelled, .removed { background:var(--red-bg); color:var(--red); }
+  .offered { background:var(--blue-bg); color:var(--blue); }
+  .tier { display:inline-block; border-radius:4px; padding:1px 7px; font-size:11.5px; font-weight:700; letter-spacing:.02em; }
+  .tier.platinum { background:var(--plat-bg); color:var(--plat); }
+  .tier.gold { background:var(--gold-bg); color:var(--gold); }
+  .tier.silver { background:var(--silver-bg); color:var(--silver); }
+  .tier.standard { background:var(--grey-bg); color:var(--faint); }
+  .tag { display:inline-block; margin:2px 4px 0 0; background:var(--grey-bg); color:var(--muted); border-radius:4px; padding:1px 6px; font-size:11px; }
+  .actions { display:flex; gap:6px; flex-wrap:wrap; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chips button.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .toolbar input[type=search] { max-width:260px; }
+  .empty { padding:36px; text-align:center; color:var(--muted); }
+  .tiers { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:16px; }
+  .tiers .card { padding:14px 16px; }
+  .tiers ul { margin:8px 0 0; padding-left:18px; color:var(--muted); font-size:13px; }
+  .tiers .cnt { float:right; color:var(--muted); font-size:12px; }
+  .rule { background:var(--teal-soft); color:var(--teal-2); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px; }
+  .doc-clinic { margin:18px 0 8px; font-weight:700; color:var(--muted); font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; }
+  .hours { font-size:12px; color:var(--muted); }
+  .inactive td { opacity:.55; }
+  /* modal */
+  .modal-bg { position:fixed; inset:0; background:rgba(20,30,36,.45); display:none; align-items:flex-start; justify-content:center; padding:40px 12px; z-index:20; overflow-y:auto; }
+  .modal-bg.on { display:flex; }
+  .modal { background:#fff; border-radius:12px; width:100%; max-width:620px; box-shadow:0 12px 40px rgba(0,0,0,.18); }
+  .modal header { padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; }
+  .modal header h3 { margin:0; font-size:16px; flex:1; }
+  .modal .body { padding:16px 18px; }
+  .modal footer { padding:12px 18px; border-top:1px solid var(--line); display:flex; gap:8px; justify-content:flex-end; align-items:center; }
+  .modal footer .err { color:var(--red); font-size:13px; flex:1; }
+  .x { border:0; background:none; font-size:20px; line-height:1; padding:2px 6px; color:var(--muted); }
+  .slots { display:flex; flex-direction:column; gap:10px; max-height:280px; overflow-y:auto; border:1px solid var(--line); border-radius:8px; padding:10px; background:#fafbfb; }
+  .slots .day { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:4px; }
+  .slots .times { display:flex; flex-wrap:wrap; gap:6px; }
+  .slots button { font-size:12.5px; padding:4px 8px; }
+  .slots button.member { border-color:#e2c873; background:var(--gold-bg); }
+  .slots button.on { background:var(--teal); border-color:var(--teal); color:#fff; }
+  .lookup { font-size:12.5px; margin:-4px 0 10px; color:var(--muted); min-height:18px; }
+  .week { display:grid; grid-template-columns:52px 70px 1fr 1fr; gap:6px 10px; align-items:center; font-size:13px; }
+  .week .h { font-size:11.5px; color:var(--muted); font-weight:700; }
+  .week .pair { display:flex; gap:4px; align-items:center; }
+  .week select { padding:4px 6px; font-size:12.5px; }
+  .checks { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:4px; }
+  .checks label { display:flex; align-items:center; gap:6px; font-weight:400; color:var(--ink); font-size:13px; }
+  .checks input { width:auto; }
+  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 16px; border-radius:8px; font-size:13px; z-index:30; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; }
+  .toast.on { opacity:1; }
+  .toast.bad { background:var(--red); }
+  .ev { font-size:13px; }
+  .ev .k { display:inline-block; min-width:68px; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--faint); letter-spacing:.04em; }
+  @media (max-width:900px) { .grid2 { grid-template-columns:1fr; } }
+  @media (max-width:640px) {
+    main { padding:14px 12px; }
+    .top-in { padding:10px 12px; }
+    .row2, .row3 { grid-template-columns:1fr; }
+    .week { grid-template-columns:40px 56px 1fr; }
+    .week .pm { grid-column:3; }
+    .week .h.pmh { display:none; }
+    table.resp thead { display:none; }
+    table.resp, table.resp tbody, table.resp tr, table.resp td { display:block; width:100%; }
+    table.resp tr { border-bottom:1px solid var(--line); padding:8px 0; }
+    table.resp td { border:0; padding:4px 12px; }
+    table.resp td[data-l]::before { content:attr(data-l); display:block; font-size:11px; color:var(--faint); font-weight:600; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="logo">Z</div>
+    <div><h1>ZenAura Dental · Staff console</h1><div class="meta" id="meta">Loading…</div></div>
+    <span class="spacer"></span>
+    <select id="clinicFilter" aria-label="Clinic"><option value="">All clinics</option></select>
+    <button id="reset" title="Delete all bookings, the waitlist and the activity log for a fresh demo">Clear demo data</button>
+  </div>
+</header>
+<nav class="tabs"><div class="tabs-in" id="tabs">
+  <button data-t="dash" class="on">Dashboard</button>
+  <button data-t="bookings">Bookings <span class="count" id="cPending" hidden></span></button>
+  <button data-t="waitlist">Waitlist <span class="count" id="cWait" hidden></span></button>
+  <button data-t="patients">Patients &amp; members</button>
+  <button data-t="doctors">Doctors</button>
+  <button data-t="clinics">Clinics &amp; services</button>
+  <button data-t="activity">Activity</button>
+</div></nav>
+
+<main>
+  <!-- Dashboard -->
+  <section class="tab on" id="t-dash">
+    <div class="stats" id="stats"></div>
+    <div class="grid2">
+      <div class="card"><h3>Needs attention</h3><ul class="list" id="attention"></ul></div>
+      <div class="card"><h3>Recent activity</h3><ul class="list" id="recent"></ul></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>Today's appointments</h3><ul class="list" id="today"></ul></div>
+  </section>
+
+  <!-- Bookings -->
+  <section class="tab" id="t-bookings">
+    <div class="head"><div><h2>Bookings</h2><p>Requests from the chat, phone bookings by staff and bookings from the waitlist.</p></div><span class="spacer"></span><button class="primary" id="newBooking">+ New booking</button></div>
+    <div class="toolbar">
+      <div class="chips" id="bFilter">
+        <button data-f="active" class="on">Upcoming</button><button data-f="requested">Pending</button><button data-f="confirmed">Confirmed</button><button data-f="closed">Cancelled / declined</button><button data-f="all">All</button>
+      </div>
+      <span class="spacer"></span>
+      <input type="search" id="bSearch" placeholder="Search name, mobile or ref">
+    </div>
+    <div class="card tablewrap"><table class="resp"><thead><tr><th>Reference</th><th>Status</th><th>Appointment</th><th>Clinic &amp; dentist</th><th>Patient</th><th>Actions</th></tr></thead><tbody id="bRows"></tbody></table></div>
+  </section>
+
+  <!-- Waitlist -->
+  <section class="tab" id="t-waitlist">
+    <div class="head"><div><h2>Waitlist</h2><p>Ordered by membership tier, then by who joined first. A freed slot is offered automatically to the first patient in line.</p></div><span class="spacer"></span><button class="primary" id="newWait">+ Add to waitlist</button></div>
+    <div class="rule" id="offerRule"></div>
+    <div class="card tablewrap"><table class="resp"><thead><tr><th>Ref</th><th>Status</th><th>Patient</th><th>Wants</th><th>Place</th><th>Actions</th></tr></thead><tbody id="wRows"></tbody></table></div>
+  </section>
+
+  <!-- Patients -->
+  <section class="tab" id="t-patients">
+    <div class="head"><div><h2>Patients &amp; members</h2><p>Patients are added automatically when they book. Set a membership tier for known patients here.</p></div><span class="spacer"></span><button class="primary" id="newPatient">+ Add patient</button></div>
+    <div class="tiers" id="tierCards"></div>
+    <div class="toolbar"><input type="search" id="pSearch" placeholder="Search name or mobile"><div class="chips" id="pFilter"><button data-f="" class="on">All</button><button data-f="platinum">Platinum</button><button data-f="gold">Gold</button><button data-f="silver">Silver</button><button data-f="standard">Standard</button></div></div>
+    <div class="card tablewrap"><table class="resp"><thead><tr><th>Patient</th><th>Tier</th><th>Preferred clinic</th><th>Bookings</th><th>Member since</th><th></th></tr></thead><tbody id="pRows"></tbody></table></div>
+  </section>
+
+  <!-- Doctors -->
+  <section class="tab" id="t-doctors">
+    <div class="head"><div><h2>Doctors</h2><p>Changes apply straight away: the AI agent offers new doctors and new hours in the next chat.</p></div><span class="spacer"></span><button class="primary" id="newDoctor">+ Add doctor</button></div>
+    <div class="rule" id="memberRule"></div>
+    <div id="docList"></div>
+  </section>
+
+  <!-- Clinics & services -->
+  <section class="tab" id="t-clinics">
+    <div class="head"><div><h2>Clinics</h2><p>Opening hours shown to patients, and whether the clinic takes bookings.</p></div><span class="spacer"></span><button class="primary" id="newClinic">+ Add clinic</button></div>
+    <div class="card tablewrap" style="margin-bottom:24px"><table class="resp"><thead><tr><th>Clinic</th><th>Region</th><th>Contact</th><th>Doctors</th><th>Status</th><th></th></tr></thead><tbody id="cRows"></tbody></table></div>
+    <div class="head"><div><h2>Services</h2><p>What patients can book. After adding a service, tick it for the doctors who offer it.</p></div><span class="spacer"></span><button class="primary" id="newService">+ Add service</button></div>
+    <div class="card tablewrap"><table class="resp"><thead><tr><th>Service</th><th>Id</th><th>Doctors offering it</th><th>Status</th><th></th></tr></thead><tbody id="sRows"></tbody></table></div>
+  </section>
+
+  <!-- Activity -->
+  <section class="tab" id="t-activity">
+    <div class="head"><div><h2>Activity</h2><p>Everything that happened, newest first: patient actions from the chat, staff actions and automatic waitlist offers.</p></div></div>
+    <div class="card"><ul class="list" id="evList"></ul></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="modalBg"><div class="modal" role="dialog" aria-modal="true">
+  <header><h3 id="mTitle"></h3><button class="x" id="mClose" aria-label="Close">×</button></header>
+  <div class="body" id="mBody"></div>
+  <footer><span class="err" id="mErr"></span><button id="mCancel">Cancel</button><button class="primary" id="mSave">Save</button></footer>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const HOURS_KEYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun','PH'];
+  const TIMES = []; for (let m = 7 * 60; m <= 21 * 60; m += 30) TIMES.push(`${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`);
+  const state = { tab: 'dash', meta: null, bookings: [], waitlist: [], patients: [], events: [], summary: null, bFilter: 'active', pFilter: '', known: null };
+
+  async function api(method, url, body) {
+    const r = await fetch(url, { method, cache: 'no-store', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+    let data = {};
+    try { data = await r.json(); } catch (e) { /* not json */ }
+    if (!r.ok) throw new Error(data.message || `Request failed (${r.status})`);
+    return data;
+  }
+  function toast(msg, bad) { const t = $('toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(t._h); t._h = setTimeout(() => { t.className = 'toast'; }, 3200); }
+  const tierBadge = (id, label) => `<span class="tier ${esc(id)}">${esc(label || id)}</span>`;
+  const clinicName = (id) => { const c = state.meta && state.meta.clinics.find((x) => x.id === id); return c ? c.area : id; };
+  const svcName = (id) => { const s = state.meta && state.meta.services.find((x) => x.id === id); return s ? s.name : id; };
+  const cf = () => $('clinicFilter').value;
+  const ago = (iso) => { const s = (Date.now() - new Date(iso)) / 1000; if (s < 60) return 'just now'; if (s < 3600) return `${Math.floor(s / 60)} min ago`; if (s < 86400) return `${Math.floor(s / 3600)} h ago`; return new Date(iso).toLocaleDateString(); };
+
+  // ---------- modal ----------
+  let onSave = null;
+  function openModal(title, html, save, saveLabel = 'Save') {
+    $('mTitle').textContent = title; $('mBody').innerHTML = html; $('mErr').textContent = '';
+    $('mSave').textContent = saveLabel; $('mSave').hidden = !save; $('mSave').disabled = false;
+    onSave = save; $('modalBg').classList.add('on');
+    const f = $('mBody').querySelector('input,select'); if (f) setTimeout(() => f.focus(), 30);
+  }
+  function closeModal() { $('modalBg').classList.remove('on'); onSave = null; }
+  $('mClose').onclick = closeModal; $('mCancel').onclick = closeModal;
+  $('modalBg').addEventListener('click', (e) => { if (e.target === $('modalBg')) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  $('mSave').onclick = async () => {
+    if (!onSave) return;
+    $('mSave').disabled = true; $('mErr').textContent = '';
+    try { const msg = await onSave(); closeModal(); if (msg) toast(msg); refresh(true); }
+    catch (e) { $('mErr').textContent = e.message; $('mSave').disabled = false; }
+  };
+  const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  // ---------- slot picker ----------
+  function slotPickerHtml() { return '<div class="slots" id="slotBox"><div class="sub">Choose clinic and service, then press Find times.</div></div>'; }
+  async function loadSlots({ clinicId, service, dentist, date }) {
+    const box = $('slotBox'); box.innerHTML = '<div class="sub">Loading…</div>'; box.dataset.sel = '';
+    try {
+      const q = new URLSearchParams({ clinicId, service }); if (dentist) q.set('dentist', dentist); if (date) q.set('date', date);
+      const d = await api('GET', '/admin/api/slots?' + q);
+      if (!d.slots.length) { box.innerHTML = '<div class="sub">No open times. Try another date or doctor.</div>'; return; }
+      const byDay = {};
+      d.slots.forEach((s) => { (byDay[s.dateLabel] = byDay[s.dateLabel] || []).push(s); });
+      box.innerHTML = Object.entries(byDay).map(([day, list]) => `<div><div class="day">${esc(day)}</div><div class="times">${list.map((s) =>
+        `<button type="button" data-s="${esc(s.slotId)}" class="${s.memberPriority ? 'member' : ''}" title="${esc(s.dentist)}${s.memberPriority ? ' · held for Gold and Platinum members' : ''}">${esc(s.timeLabel)} · ${esc(s.dentist.replace(/ \(.*\)/, ''))}${s.memberPriority ? ' ★' : ''}</button>`).join('')}</div></div>`).join('')
+        + '<div class="sub">★ member priority slot (staff can still book it)</div>';
+      box.onclick = (e) => { const b = e.target.closest('button[data-s]'); if (!b) return; box.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); box.dataset.sel = b.dataset.s; };
+    } catch (e) { box.innerHTML = `<div class="sub">${esc(e.message)}</div>`; }
+  }
+  const chosenSlot = () => { const s = $('slotBox') && $('slotBox').dataset.sel; if (!s) throw new Error('Please choose a time.'); return s; };
+  const clinicOptions = (sel, activeOnly = true) => state.meta.clinics.filter((c) => !activeOnly || c.active).map((c) => `<option value="${esc(c.id)}" ${c.id === sel ? 'selected' : ''}>${esc(c.area)}</option>`).join('');
+  const serviceOptions = (sel) => state.meta.services.filter((s) => s.active).map((s) => `<option value="${esc(s.id)}" ${s.id === sel ? 'selected' : ''}>${esc(s.name)}</option>`).join('');
+  function dentistOptions(clinicId, service, sel) {
+    return '<option value="">Any doctor</option>' + state.meta.dentists.filter((d) => d.active && d.clinicId === clinicId && (!service || d.services.includes(service)))
+      .map((d) => `<option value="${esc(d.id)}" ${d.id === sel ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+  }
+  function wireSlotForm() {
+    const upd = () => { $('fDentist').innerHTML = dentistOptions(val('fClinic'), val('fService'), ''); };
+    $('fClinic').onchange = upd; $('fService').onchange = upd;
+    $('fFind').onclick = () => loadSlots({ clinicId: val('fClinic'), service: val('fService'), dentist: val('fDentist'), date: val('fDate') });
+  }
+  const slotFormHtml = (clinicId, service) => `
+    <div class="row2"><label class="f">Clinic<select id="fClinic">${clinicOptions(clinicId)}</select></label>
+    <label class="f">Service<select id="fService">${serviceOptions(service)}</select></label></div>
+    <div class="row3"><label class="f">Doctor<select id="fDentist">${dentistOptions(clinicId || state.meta.clinics.find((c) => c.active).id, service, '')}</select></label>
+    <label class="f">Date (optional)<input type="date" id="fDate"></label>
+    <label class="f">&nbsp;<button type="button" id="fFind" style="width:100%;margin-top:4px">Find times</button></label></div>
+    ${slotPickerHtml()}`;
+
+  async function lookupInto(mobileId, nameId, outId) {
+    const m = val(mobileId); const out = $(outId); if (!m) { out.textContent = ''; return; }
+    try {
+      const d = await api('GET', '/admin/api/patients');
+      const digits = m.replace(/\D/g, '').slice(-8);
+      const p = d.patients.find((x) => x.mobile.endsWith(digits));
+      if (p) { out.innerHTML = `Known patient: <b>${esc(p.name)}</b> ${tierBadge(p.tier, p.tierLabel)} · ${p.bookings} booking(s)`; if (nameId && !val(nameId)) $(nameId).value = p.name; }
+      else out.textContent = 'New patient: they will be added as Standard.';
+    } catch (e) { out.textContent = ''; }
+  }
+
+  // ---------- data loading ----------
+  async function loadMeta() {
+    state.meta = await api('GET', '/admin/api/meta');
+    const sel = cf();
+    $('clinicFilter').innerHTML = '<option value="">All clinics</option>' + state.meta.clinics.map((c) => `<option value="${esc(c.id)}">${esc(c.area)}${c.active ? '' : ' (inactive)'}</option>`).join('');
+    $('clinicFilter').value = sel;
+    $('offerRule').textContent = state.meta.rules.offerHold + ' Platinum first, then Gold, Silver and Standard; earliest joiner first within a tier.';
+    $('memberRule').textContent = '★ ' + state.meta.rules.memberSlots;
+  }
+  async function refresh(force) {
+    if (!force && $('modalBg').classList.contains('on')) return;
+    try {
+      const [summary, b, w] = await Promise.all([api('GET', '/admin/api/summary'), api('GET', '/admin/api/bookings'), api('GET', '/admin/api/waitlist')]);
+      state.summary = summary; state.bookings = b.bookings; state.waitlist = w.entries;
+      if (['dash', 'activity'].includes(state.tab)) state.events = (await api('GET', '/admin/api/events?limit=150')).events;
+      if (state.tab === 'patients' || force) state.patients = (await api('GET', '/admin/api/patients')).patients;
+      if (force && ['doctors', 'clinics'].includes(state.tab)) await loadMeta();
+      render();
+      $('meta').textContent = `Updated ${new Date().toLocaleTimeString()} · Singapore time`;
+    } catch (e) { $('meta').textContent = 'Could not refresh – retrying…'; }
+  }
+
+  // ---------- renderers ----------
+  function render() {
+    const s = state.summary;
+    $('cPending').hidden = !s.pending; $('cPending').textContent = s.pending;
+    $('cWait').hidden = !(s.waitlistWaiting + s.offersOpen); $('cWait').textContent = s.waitlistWaiting + s.offersOpen;
+    ({ dash: renderDash, bookings: renderBookings, waitlist: renderWaitlist, patients: renderPatients, doctors: renderDoctors, clinics: renderClinics, activity: renderActivity })[state.tab]();
+    state.known = new Set(state.bookings.map((b) => b.ref + b.updatedAt));
+  }
+  const byClinic = (list, key = (x) => x.clinic.id) => list.filter((x) => !cf() || key(x) === cf());
+
+  function bookingActions(b) {
+    const live = b.status === 'requested' || b.status === 'confirmed';
+    return `<div class="actions">${b.status === 'requested' ? `<button class="sm ok" data-a="confirm" data-r="${esc(b.ref)}">Confirm</button><button class="sm no" data-a="reject" data-r="${esc(b.ref)}">Decline</button>` : ''}${live ? `<button class="sm" data-a="move" data-r="${esc(b.ref)}">Reschedule</button><button class="sm" data-a="cancel" data-r="${esc(b.ref)}">Cancel</button>` : ''}</div>`;
+  }
+
+  function renderDash() {
+    const s = state.summary;
+    $('stats').innerHTML = [
+      [s.todayAppointments, "Today's appointments"], [s.pending, 'Pending requests'], [s.upcomingConfirmed, 'Upcoming confirmed'],
+      [s.waitlistWaiting, 'On the waitlist'], [s.offersOpen, 'Slots held for waitlist'],
+      [`${s.members.platinum} / ${s.members.gold} / ${s.members.silver}`, 'Members: Platinum / Gold / Silver'],
+    ].map(([n, l]) => `<div class="card stat"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div></div>`).join('');
+    const pend = byClinic(state.bookings).filter((b) => b.status === 'requested').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 6);
+    const offers = byClinic(state.waitlist).filter((w) => w.status === 'offered');
+    $('attention').innerHTML = (pend.map((b) => `<li><div class="grow"><span class="ref">${esc(b.ref)}</span> ${tierBadge(b.tier, b.tierLabel)} <b>${esc(b.patient.name)}</b><div class="sub">${esc(b.service.name)} · ${esc(b.dateLabel)} ${esc(b.timeLabel)} · ${esc(b.clinic.name.replace('ZenAura Dental Centre – ', ''))} · ${esc(b.dentist)}</div></div>${bookingActions(b)}</li>`).join('')
+      + offers.map((w) => `<li><div class="grow"><span class="pill offered">Slot held</span> ${tierBadge(w.tier, w.tierLabel)} <b>${esc(w.patient.name)}</b><div class="sub">${esc(w.offer.dateLabel)} ${esc(w.offer.timeLabel)} with ${esc(w.offer.dentist)} · until ${esc(w.offer.expiresLabel)}</div></div><div class="actions"><button class="sm ok" data-w="book" data-r="${esc(w.ref)}">Book for them</button></div></li>`).join(''))
+      || '<li class="empty">Nothing waiting for you. New chat requests appear here within a few seconds.</li>';
+    $('recent').innerHTML = state.events.slice(0, 8).map(evItem).join('') || '<li class="empty">No activity yet.</li>';
+    const today = byClinic(state.bookings).filter((b) => b.date === s.today && (b.status === 'requested' || b.status === 'confirmed')).sort((a, b) => a.time.localeCompare(b.time));
+    $('today').innerHTML = today.map((b) => `<li><div style="min-width:76px"><b>${esc(b.timeLabel)}</b></div><div class="grow">${esc(b.patient.name)} ${tierBadge(b.tier, b.tierLabel)}<div class="sub">${esc(b.service.name)} · ${esc(b.dentist)} · ${esc(b.clinic.name.replace('ZenAura Dental Centre – ', ''))}</div></div><span class="pill ${esc(b.status)}">${esc(b.statusLabel)}</span></li>`).join('') || '<li class="empty">No appointments today.</li>';
+  }
+
+  function renderBookings() {
+    const q = $('bSearch').value.trim().toLowerCase();
+    const f = state.bFilter;
+    const list = byClinic(state.bookings).filter((b) => {
+      if (f === 'active' && !(b.status === 'requested' || b.status === 'confirmed')) return false;
+      if (f === 'requested' && b.status !== 'requested') return false;
+      if (f === 'confirmed' && b.status !== 'confirmed') return false;
+      if (f === 'closed' && !(b.status === 'cancelled' || b.status === 'rejected')) return false;
+      return !q || `${b.ref} ${b.patient.name} ${b.patient.mobile}`.toLowerCase().includes(q);
+    });
+    if (f === 'active') list.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    $('bRows').innerHTML = list.map((b) => {
+      const fresh = state.known && !state.known.has(b.ref + b.updatedAt);
+      const src = { chat: 'Chat', staff: 'Staff', waitlist: 'Waitlist' }[b.source] || b.source;
+      return `<tr class="${fresh ? 'fresh' : ''}">
+        <td data-l="Reference"><span class="ref">${esc(b.ref)}</span><div><span class="tag">${esc(src)}</span>${b.rescheduleCount ? '<span class="tag">Rescheduled</span>' : ''}</div></td>
+        <td data-l="Status"><span class="pill ${esc(b.status)}">${esc(b.statusLabel)}</span>${b.cancelReason ? `<div class="sub">${esc(b.cancelReason)}</div>` : ''}</td>
+        <td data-l="Appointment">${esc(b.dateLabel)}<div class="sub">${esc(b.timeLabel)} · ${esc(b.service.name)}</div></td>
+        <td data-l="Clinic & dentist">${esc(b.clinic.name.replace('ZenAura Dental Centre – ', ''))}<div class="sub">${esc(b.dentist)}</div></td>
+        <td data-l="Patient">${esc(b.patient.name)} ${tierBadge(b.tier, b.tierLabel)}<div class="sub">${esc(b.patient.mobile)}${b.patient.email ? ' · ' + esc(b.patient.email) : ''}</div></td>
+        <td data-l="Actions">${bookingActions(b)}</td></tr>`;
+    }).join('') || '<tr><td colspan="6" class="empty">No bookings match.</td></tr>';
+  }
+
+  function renderWaitlist() {
+    const list = byClinic(state.waitlist);
+    $('wRows').innerHTML = list.map((w) => `<tr>
+      <td data-l="Ref"><span class="ref">${esc(w.ref)}</span><div class="sub">${esc(ago(w.createdAt))}</div></td>
+      <td data-l="Status"><span class="pill ${esc(w.status)}">${esc(w.statusLabel)}</span>${w.offer ? `<div class="sub">${esc(w.offer.dateLabel)} ${esc(w.offer.timeLabel)} · ${esc(w.offer.dentist)}<br>held until ${esc(w.offer.expiresLabel)}</div>` : ''}${w.bookingRef ? `<div class="sub">Booking ${esc(w.bookingRef)}</div>` : ''}</td>
+      <td data-l="Patient">${esc(w.patient.name)} ${tierBadge(w.tier, w.tierLabel)}<div class="sub">${esc(w.patient.mobile)}</div></td>
+      <td data-l="Wants">${esc(w.service.name)}<div class="sub">${esc(w.clinic.area)} · ${esc(w.dentist)}${w.fromDate ? ' · from ' + esc(w.fromDate) : ''}</div></td>
+      <td data-l="Place">${w.position ? `<b>#${w.position}</b>` : '–'}</td>
+      <td data-l="Actions"><div class="actions">${w.status === 'waiting' ? `<button class="sm" data-w="offer" data-r="${esc(w.ref)}">Offer a slot</button><button class="sm ok" data-w="pick" data-r="${esc(w.ref)}">Book</button>` : ''}${w.status === 'offered' ? `<button class="sm ok" data-w="book" data-r="${esc(w.ref)}">Book held slot</button>` : ''}${['waiting', 'offered'].includes(w.status) ? `<button class="sm no" data-w="remove" data-r="${esc(w.ref)}">Remove</button>` : ''}</div></td></tr>`).join('')
+      || '<tr><td colspan="6" class="empty">Nobody is on the waitlist. Patients join from the chat when no time suits them.</td></tr>';
+  }
+
+  function renderPatients() {
+    const counts = {}; state.patients.forEach((p) => { counts[p.tier] = (counts[p.tier] || 0) + 1; });
+    $('tierCards').innerHTML = state.meta.tiers.slice().reverse().map((t) => `<div class="card">${tierBadge(t.id, t.label)}<span class="cnt">${counts[t.id] || 0} patient(s)</span><div class="sub" style="margin-top:6px">Zendesk ticket priority: <b>${esc(t.ticketPriority)}</b> · tag member_${esc(t.id)}</div><ul>${t.perks.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></div>`).join('');
+    const q = $('pSearch').value.trim().toLowerCase();
+    const list = state.patients.filter((p) => (!state.pFilter || p.tier === state.pFilter) && (!q || `${p.name} ${p.mobile}`.toLowerCase().includes(q)) && (!cf() || p.preferredClinic === cf()));
+    $('pRows').innerHTML = list.map((p) => `<tr>
+      <td data-l="Patient"><b>${esc(p.name)}</b><div class="sub">${esc(p.mobile)}${p.email ? ' · ' + esc(p.email) : ''}</div>${p.notes ? `<div class="sub">${esc(p.notes)}</div>` : ''}</td>
+      <td data-l="Tier">${tierBadge(p.tier, p.tierLabel)}</td>
+      <td data-l="Preferred clinic">${esc(p.preferredClinic ? clinicName(p.preferredClinic) : '–')}</td>
+      <td data-l="Bookings">${p.bookings}${p.lastVisit ? `<div class="sub">latest appt ${esc(p.lastVisit)}</div>` : ''}</td>
+      <td data-l="Member since">${esc(p.memberSince)}</td>
+      <td><button class="sm" data-p="${esc(p.mobile)}">Edit</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">No patients match.</td></tr>';
+  }
+
+  function hoursSummary(schedule) {
+    return DAYS.map((d, i) => { const b = schedule[String(i + 1)]; return b && b.length ? `${d} ${b.map(([s, e]) => `${s}–${e}`).join(', ')}` : null; }).filter(Boolean).join(' · ') || 'No working hours';
+  }
+  function renderDoctors() {
+    const clinics = state.meta.clinics.filter((c) => !cf() || c.id === cf());
+    $('docList').innerHTML = clinics.map((c) => {
+      const ds = state.meta.dentists.filter((d) => d.clinicId === c.id);
+      return `<div class="doc-clinic">${esc(c.area)}${c.active ? '' : ' (inactive)'}</div><div class="card tablewrap"><table class="resp"><thead><tr><th>Doctor</th><th>Services</th><th>Weekly hours</th><th>Status</th><th></th></tr></thead><tbody>${ds.map((d) => `<tr class="${d.active ? '' : 'inactive'}">
+        <td data-l="Doctor"><b>${esc(d.name)}</b>${d.note ? `<div class="sub">${esc(d.note)}</div>` : ''}<div class="sub">id ${esc(d.id)}</div></td>
+        <td data-l="Services">${d.services.map((s) => `<span class="tag">${esc(svcName(s))}</span>`).join('')}</td>
+        <td data-l="Weekly hours" class="hours">${esc(hoursSummary(d.schedule))}</td>
+        <td data-l="Status">${d.active ? '<span class="pill confirmed">Taking bookings</span>' : '<span class="pill cancelled">Inactive</span>'}</td>
+        <td><button class="sm" data-d="${esc(d.id)}">Edit</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">No doctors yet.</td></tr>'}</tbody></table></div>`;
+    }).join('');
+  }
+
+  function renderClinics() {
+    $('cRows').innerHTML = state.meta.clinics.map((c) => `<tr class="${c.active ? '' : 'inactive'}">
+      <td data-l="Clinic"><b>${esc(c.area)}</b><div class="sub">${esc(c.name)}</div><div class="sub">id ${esc(c.id)}</div></td>
+      <td data-l="Region">${esc(c.region)}</td>
+      <td data-l="Contact">${esc(c.phone || '–')}<div class="sub">${esc(c.address)}</div></td>
+      <td data-l="Doctors">${state.meta.dentists.filter((d) => d.clinicId === c.id && d.active).length}</td>
+      <td data-l="Status">${c.active ? '<span class="pill confirmed">Open for booking</span>' : '<span class="pill cancelled">Inactive</span>'}</td>
+      <td><button class="sm" data-c="${esc(c.id)}">Edit</button></td></tr>`).join('');
+    $('sRows').innerHTML = state.meta.services.map((s) => `<tr class="${s.active ? '' : 'inactive'}">
+      <td data-l="Service"><b>${esc(s.name)}</b></td><td data-l="Id"><span class="ref">${esc(s.id)}</span></td>
+      <td data-l="Doctors offering it">${state.meta.dentists.filter((d) => d.active && d.services.includes(s.id)).length}</td>
+      <td data-l="Status">${s.active ? '<span class="pill confirmed">Bookable</span>' : '<span class="pill cancelled">Switched off</span>'}</td>
+      <td><button class="sm" data-s="${esc(s.id)}">Edit</button></td></tr>`).join('');
+  }
+
+  function evItem(e) {
+    const who = { patient: 'Patient', staff: 'Staff', system: 'Auto' }[e.actor] || e.actor;
+    return `<li class="ev"><span class="k">${esc(who)}</span><div class="grow">${esc(e.detail)}${e.ref ? ` <span class="sub">· ${esc(e.ref)}</span>` : ''}</div><span class="sub">${esc(ago(e.at))}</span></li>`;
+  }
+  function renderActivity() { $('evList').innerHTML = state.events.map(evItem).join('') || '<li class="empty">No activity yet.</li>'; }
+
+  // ---------- actions: bookings ----------
+  function newBookingModal() {
+    const c = cf() || state.meta.clinics.find((x) => x.active).id;
+    openModal('New booking (phone or walk-in)', `
+      <div class="row2"><label class="f">Mobile<input id="fMobile" placeholder="9123 4567" inputmode="tel"></label>
+      <label class="f">Full name<input id="fName"></label></div>
+      <div class="lookup" id="fLook"></div>
+      <label class="f">Email (optional)<input id="fEmail" type="email"></label>
+      ${slotFormHtml(c, 'consult')}
+      <label class="f" style="margin-top:10px">Notes (optional)<textarea id="fNotes"></textarea></label>
+      <div class="checks"><label><input type="checkbox" id="fConfirm" checked> Confirm straight away</label></div>`,
+    async () => {
+      const d = await api('POST', '/admin/api/bookings', { mobile: val('fMobile'), name: val('fName'), email: val('fEmail'), clinicId: val('fClinic'), service: val('fService'), slotId: chosenSlot(), notes: val('fNotes'), confirm: $('fConfirm').checked });
+      return `Booked ${d.ref} · ${d.dateLabel} ${d.timeLabel}`;
+    }, 'Create booking');
+    wireSlotForm();
+    $('fMobile').addEventListener('blur', () => lookupInto('fMobile', 'fName', 'fLook'));
+  }
+  function rescheduleModal(ref) {
+    const b = state.bookings.find((x) => x.ref === ref);
+    openModal(`Reschedule ${ref}`, `<p class="sub" style="margin-top:0">${esc(b.patient.name)} · now ${esc(b.dateLabel)} ${esc(b.timeLabel)} with ${esc(b.dentist)}</p>
+      <div class="row3"><label class="f">Doctor<select id="fDentist">${dentistOptions(b.clinic.id, b.service.id, '')}</select></label><label class="f">Date (optional)<input type="date" id="fDate"></label><label class="f">&nbsp;<button type="button" id="fFind" style="width:100%;margin-top:4px">Find times</button></label></div>${slotPickerHtml()}`,
+    async () => { const d = await api('POST', `/admin/api/bookings/${ref}/reschedule`, { slotId: chosenSlot() }); return `${ref} moved to ${d.dateLabel} ${d.timeLabel}`; }, 'Move booking');
+    $('fFind').onclick = () => loadSlots({ clinicId: b.clinic.id, service: b.service.id, dentist: val('fDentist'), date: val('fDate') });
+    loadSlots({ clinicId: b.clinic.id, service: b.service.id });
+  }
+  function reasonModal(ref, action) {
+    const label = action === 'reject' ? 'Decline' : 'Cancel';
+    openModal(`${label} ${ref}`, `<label class="f">Reason (optional, shown to staff)<input id="fReason" placeholder="${action === 'reject' ? 'e.g. Dentist on leave' : 'e.g. Patient called to cancel'}"></label><p class="sub">If someone is on the waitlist for this clinic and service, the freed slot is held for them automatically.</p>`,
+      async () => { await api('POST', `/admin/api/bookings/${ref}/${action}`, { reason: val('fReason') }); return `${ref} ${action === 'reject' ? 'declined' : 'cancelled'}`; }, `${label} booking`);
+  }
+  document.body.addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-a]');
+    if (b) {
+      const { a, r } = b.dataset;
+      if (a === 'move') return rescheduleModal(r);
+      if (a === 'reject' || a === 'cancel') return reasonModal(r, a);
+      b.disabled = true;
+      try { await api('POST', `/admin/api/bookings/${r}/${a}`, {}); toast(`${r} confirmed`); } catch (err) { toast(err.message, true); }
+      return refresh(true);
+    }
+    const w = e.target.closest('button[data-w]');
+    if (w) return waitAction(w.dataset.w, w.dataset.r, w);
+    const p = e.target.closest('button[data-p]'); if (p) return patientModal(state.patients.find((x) => x.mobile === p.dataset.p));
+    const d = e.target.closest('button[data-d]'); if (d) return doctorModal(state.meta.dentists.find((x) => x.id === d.dataset.d));
+    const c = e.target.closest('button[data-c]'); if (c) return clinicModal(state.meta.clinics.find((x) => x.id === c.dataset.c));
+    const s = e.target.closest('button[data-s]'); if (s && !s.closest('#slotBox')) return serviceModal(state.meta.services.find((x) => x.id === s.dataset.s));
+    return null;
+  });
+
+  // ---------- actions: waitlist ----------
+  async function waitAction(action, ref, btn) {
+    const w = state.waitlist.find((x) => x.ref === ref);
+    if (action === 'remove' || action === 'book') {
+      btn.disabled = true;
+      try { const d = await api('POST', `/admin/api/waitlist/${ref}/${action}`, {}); toast(action === 'book' ? `Booked ${d.ref} for ${w.patient.name}` : `${w.patient.name} removed from the waitlist`); }
+      catch (err) { toast(err.message, true); }
+      return refresh(true);
+    }
+    const offer = action === 'offer';
+    openModal(`${offer ? 'Offer a slot to' : 'Book'} ${w.patient.name}`, `<p class="sub" style="margin-top:0">${esc(w.service.name)} at ${esc(w.clinic.area)} · ${esc(w.dentist)}${offer ? ' · the slot is held for them for 2 hours and they can accept it in the chat.' : ''}</p>
+      <div class="row3"><label class="f">Doctor<select id="fDentist">${dentistOptions(w.clinic.id, w.service.id, w.dentistId || '')}</select></label><label class="f">Date (optional)<input type="date" id="fDate"></label><label class="f">&nbsp;<button type="button" id="fFind" style="width:100%;margin-top:4px">Find times</button></label></div>${slotPickerHtml()}`,
+    async () => { const d = await api('POST', `/admin/api/waitlist/${ref}/${offer ? 'offer' : 'book'}`, { slotId: chosenSlot() }); return offer ? `Slot held for ${w.patient.name}` : `Booked ${d.ref}`; }, offer ? 'Hold slot for them' : 'Book');
+    $('fFind').onclick = () => loadSlots({ clinicId: w.clinic.id, service: w.service.id, dentist: val('fDentist'), date: val('fDate') });
+    loadSlots({ clinicId: w.clinic.id, service: w.service.id, dentist: w.dentistId || '' });
+    return null;
+  }
+  function newWaitModal() {
+    const c = cf() || state.meta.clinics.find((x) => x.active).id;
+    openModal('Add to waitlist', `
+      <div class="row2"><label class="f">Mobile<input id="fMobile" placeholder="9123 4567" inputmode="tel"></label><label class="f">Full name<input id="fName"></label></div>
+      <div class="lookup" id="fLook"></div>
+      <div class="row2"><label class="f">Clinic<select id="fClinic">${clinicOptions(c)}</select></label><label class="f">Service<select id="fService">${serviceOptions('cleaning')}</select></label></div>
+      <div class="row2"><label class="f">Doctor<select id="fDentist">${dentistOptions(c, 'cleaning', '')}</select></label><label class="f">Earliest date (optional)<input type="date" id="fDate"></label></div>
+      <label class="f">Notes (optional)<input id="fNotes"></label>`,
+    async () => { const d = await api('POST', '/admin/api/waitlist', { mobile: val('fMobile'), name: val('fName'), clinicId: val('fClinic'), service: val('fService'), dentistId: val('fDentist'), fromDate: val('fDate'), notes: val('fNotes') }); return d.alreadyOnWaitlist ? 'Already on the waitlist' : `Added ${d.ref} · place #${d.position}`; }, 'Add');
+    const upd = () => { $('fDentist').innerHTML = dentistOptions(val('fClinic'), val('fService'), ''); };
+    $('fClinic').onchange = upd; $('fService').onchange = upd;
+    $('fMobile').addEventListener('blur', () => lookupInto('fMobile', 'fName', 'fLook'));
+  }
+
+  // ---------- actions: patients ----------
+  function patientModal(p) {
+    const isNew = !p; p = p || { tier: 'standard' };
+    openModal(isNew ? 'Add patient' : `Edit ${p.name}`, `
+      <div class="row2"><label class="f">Mobile<input id="fMobile" value="${esc(p.mobile || '')}" ${isNew ? '' : 'readonly'} placeholder="9123 4567"></label><label class="f">Full name<input id="fName" value="${esc(p.name || '')}"></label></div>
+      <div class="row2"><label class="f">Email<input id="fEmail" type="email" value="${esc(p.email || '')}"></label>
+      <label class="f">Membership tier<select id="fTier">${state.meta.tiers.map((t) => `<option value="${t.id}" ${t.id === p.tier ? 'selected' : ''}>${t.label}</option>`).join('')}</select></label></div>
+      <label class="f">Preferred clinic<select id="fPref"><option value="">–</option>${clinicOptions(p.preferredClinic, false)}</select></label>
+      <label class="f">Notes<textarea id="fNotes">${esc(p.notes || '')}</textarea></label>
+      <p class="sub">Changing the tier also moves their open waitlist entries to the new priority.</p>`,
+    async () => { await api('POST', '/admin/api/patients', { mobile: val('fMobile'), name: val('fName'), email: val('fEmail'), tier: val('fTier'), preferredClinic: val('fPref'), notes: val('fNotes') }); return 'Patient saved'; });
+  }
+
+  // ---------- actions: doctors ----------
+  const timeSel = (id, v) => `<select id="${id}"><option value="">–</option>${TIMES.map((t) => `<option ${t === v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+  function doctorModal(d) {
+    const isNew = !d;
+    d = d || { clinicId: cf() || state.meta.clinics[0].id, services: ['consult'], schedule: { 1: [['09:00', '13:00'], ['14:00', '18:00']] }, active: true };
+    const week = DAYS.map((day, i) => {
+      const b = d.schedule[String(i + 1)] || [];
+      return `<div><b>${day}</b></div><div><label class="sub" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="w${i}" style="width:auto" ${b.length ? 'checked' : ''}> works</label></div>
+        <div class="pair">${timeSel(`a${i}s`, b[0] && b[0][0])}<span class="sub">to</span>${timeSel(`a${i}e`, b[0] && b[0][1])}</div>
+        <div class="pair pm">${timeSel(`p${i}s`, b[1] && b[1][0])}<span class="sub">to</span>${timeSel(`p${i}e`, b[1] && b[1][1])}</div>`;
+    }).join('');
+    openModal(isNew ? 'Add doctor' : `Edit ${d.name}`, `
+      <div class="row2"><label class="f">Name<input id="fName" value="${esc(d.name || '')}" placeholder="Dr Jane Tan"></label><label class="f">Clinic<select id="fClinic">${clinicOptions(d.clinicId, false)}</select></label></div>
+      <label class="f">Note shown to patients (optional)<input id="fNote" value="${esc(d.note || '')}" placeholder="e.g. Simple cleaning only"></label>
+      <label class="f">Services<div class="checks">${state.meta.services.map((s) => `<label><input type="checkbox" name="svc" value="${esc(s.id)}" ${d.services.includes(s.id) ? 'checked' : ''}> ${esc(s.name)}${s.active ? '' : ' (off)'}</label>`).join('')}</div></label>
+      <label class="f">Weekly hours <span class="sub" style="font-weight:400">(second block is optional, e.g. after lunch)</span></label>
+      <div class="week"><div class="h">Day</div><div class="h"></div><div class="h">Block 1</div><div class="h pmh">Block 2</div>${week}</div>
+      <div class="checks" style="margin-top:12px"><label><input type="checkbox" id="fActive" ${d.active ? 'checked' : ''}> Taking bookings</label></div>`,
+    async () => {
+      const schedule = {};
+      DAYS.forEach((day, i) => {
+        if (!$(`w${i}`).checked) return;
+        const blocks = [];
+        if (val(`a${i}s`) || val(`a${i}e`)) blocks.push([val(`a${i}s`), val(`a${i}e`)]);
+        if (val(`p${i}s`) || val(`p${i}e`)) blocks.push([val(`p${i}s`), val(`p${i}e`)]);
+        if (!blocks.length) throw new Error(`${day}: add working hours or untick "works".`);
+        schedule[String(i + 1)] = blocks;
+      });
+      const body = { name: val('fName'), clinicId: val('fClinic'), note: val('fNote'), services: [...document.querySelectorAll('input[name=svc]:checked')].map((x) => x.value), schedule, active: $('fActive').checked };
+      await api('POST', isNew ? '/admin/api/dentists' : `/admin/api/dentists/${d.id}`, body);
+      return isNew ? `${body.name} added` : `${body.name} saved`;
+    });
+  }
+
+  // ---------- actions: clinics and services ----------
+  function clinicModal(c) {
+    const isNew = !c; c = c || { region: 'East', hours: {}, active: true };
+    openModal(isNew ? 'Add clinic' : `Edit ${c.area}`, `
+      <label class="f">Full name<input id="fName" value="${esc(c.name || '')}" placeholder="ZenAura Dental Centre – Jurong East"></label>
+      <div class="row2"><label class="f">Short name (area)<input id="fArea" value="${esc(c.area || '')}" placeholder="Jurong East"></label><label class="f">Region<select id="fRegion">${state.meta.regions.map((r) => `<option ${r === c.region ? 'selected' : ''}>${r}</option>`).join('')}</select></label></div>
+      <div class="row2"><label class="f">Address<input id="fAddr" value="${esc(c.address || '')}"></label><label class="f">Phone<input id="fPhone" value="${esc(c.phone || '')}"></label></div>
+      <label class="f">Opening hours shown to patients</label>
+      <div class="row2">${HOURS_KEYS.map((k) => `<label class="f">${k === 'PH' ? 'Public holidays' : k}<input id="h${k}" value="${esc((c.hours || {})[k] || (isNew ? (k === 'Sun' || k === 'PH' ? 'Closed' : '9:00 AM – 6:00 PM') : ''))}"></label>`).join('')}</div>
+      <div class="checks"><label><input type="checkbox" id="fActive" ${c.active ? 'checked' : ''}> Open for booking</label></div>`,
+    async () => {
+      const hours = {}; HOURS_KEYS.forEach((k) => { hours[k] = val(`h${k}`); });
+      await api('POST', isNew ? '/admin/api/clinics' : `/admin/api/clinics/${c.id}`, { name: val('fName'), area: val('fArea'), region: val('fRegion'), address: val('fAddr'), phone: val('fPhone'), hours, active: $('fActive').checked });
+      return isNew ? 'Clinic added. Now add its doctors.' : 'Clinic saved';
+    });
+  }
+  function serviceModal(s) {
+    const isNew = !s; s = s || { active: true };
+    openModal(isNew ? 'Add service' : `Edit ${s.name}`, `
+      <label class="f">Service name<input id="fName" value="${esc(s.name || '')}" placeholder="Teeth whitening"></label>
+      ${isNew ? '' : `<div class="checks"><label><input type="checkbox" id="fActive" ${s.active ? 'checked' : ''}> Bookable by patients</label></div>`}
+      <p class="sub">${isNew ? 'After saving, open Doctors and tick this service for the doctors who offer it.' : 'Existing bookings keep their service even if you switch it off.'}</p>`,
+    async () => {
+      if (isNew) { const d = await api('POST', '/admin/api/services', { name: val('fName') }); return `Service added (id ${d.id})`; }
+      await api('POST', `/admin/api/services/${s.id}`, { name: val('fName'), active: $('fActive').checked }); return 'Service saved';
+    });
+  }
+
+  // ---------- wiring ----------
+  $('tabs').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-t]'); if (!b) return;
+    state.tab = b.dataset.t;
+    document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
+    document.querySelectorAll('section.tab').forEach((s) => s.classList.toggle('on', s.id === `t-${state.tab}`));
+    try { localStorage.setItem('za-tab', state.tab); } catch (err) { /* ignore */ }
+    refresh(true);
+  });
+  $('bFilter').addEventListener('click', (e) => { const b = e.target.closest('button[data-f]'); if (!b) return; state.bFilter = b.dataset.f; document.querySelectorAll('#bFilter button').forEach((x) => x.classList.toggle('on', x === b)); renderBookings(); });
+  $('pFilter').addEventListener('click', (e) => { const b = e.target.closest('button[data-f]'); if (!b) return; state.pFilter = b.dataset.f; document.querySelectorAll('#pFilter button').forEach((x) => x.classList.toggle('on', x === b)); renderPatients(); });
+  $('bSearch').addEventListener('input', renderBookings);
+  $('pSearch').addEventListener('input', renderPatients);
+  $('clinicFilter').addEventListener('change', render);
+  $('newBooking').onclick = newBookingModal;
+  $('newWait').onclick = newWaitModal;
+  $('newPatient').onclick = () => patientModal(null);
+  $('newDoctor').onclick = () => doctorModal(null);
+  $('newClinic').onclick = () => clinicModal(null);
+  $('newService').onclick = () => serviceModal(null);
+  $('reset').addEventListener('click', async () => {
+    const btn = $('reset');
+    if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'Click again to clear'; setTimeout(() => { btn.dataset.armed = ''; btn.textContent = 'Clear demo data'; }, 4000); return; }
+    btn.dataset.armed = ''; btn.textContent = 'Clear demo data';
+    try { const d = await api('POST', '/admin/api/reset', {}); toast(`Cleared ${d.deleted} bookings and the waitlist`); } catch (err) { toast(err.message, true); }
+    refresh(true);
+  });
+
+  (async () => {
+    try { const saved = localStorage.getItem('za-tab'); if (saved && $(`t-${saved}`)) { state.tab = saved; document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x.dataset.t === saved)); document.querySelectorAll('section.tab').forEach((s) => s.classList.toggle('on', s.id === `t-${saved}`)); } } catch (err) { /* ignore */ }
+    try { await loadMeta(); } catch (e) { $('meta').textContent = 'Could not load. Check the API is running.'; return; }
+    await refresh(true);
+    setInterval(() => refresh(false), 5000);
+  })();
+})();
+</script>
+</body>
+</html>
